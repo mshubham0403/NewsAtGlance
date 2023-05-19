@@ -1,8 +1,8 @@
 # Extractive Text Summarization
 
  Tried out these algorithms for Extractive Summarization. <br />
-* [TextRank](Text_Rank_.ipynb)  <br />
-* [SumBasic](SumBasic.ipynb) <br />
+* [TextRank](Text_Rank_.py)  <br />
+* [SumBasic](SumBasic.py) <br />
 * [Luhns Summarization](luhn_sum.py)  <br />
 
 
