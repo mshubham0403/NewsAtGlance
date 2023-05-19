@@ -60,7 +60,7 @@ route.post('/getSummary',async (req,res,next)=>{
 })
 
 
-route.post('/subscribe',checkAuth,async (req, res) => {
+route.post('/suscribe',checkAuth,async (req, res) => {
     try{
       decoded=req.decoded
       const user=await User.findOne({

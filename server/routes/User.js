@@ -9,35 +9,40 @@ import UserDB from '../models/User.js';
 const users = express.Router();
 users.use(cors());
 
+users.get("/list",async(req,res)=>{
+  const ar = await UserDB.find();
+  res.json({ar});
+})
 
-
-users.post('/register', (req, res) => {
+users.post('/register',async (req, res) => {
     const today = new Date()
     const userData = {
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
+      first_name: req.body.fn,
+      last_name: req.body.ln,
       email: req.body.email,
-      password: req.body.password,
+      password: req.body.pwd,
       created: today
     }
-
-    UserDB.findOne({
+console.log(userData);
+    await UserDB.find({
         email: req.body.email
       })
-      .then(user => {
-        if (!user) {
-            bcrypt.hash(req.body.password, 10, (err, hash) => {
-              userData.password = hash
-              UserDB.create(userData)
-                .then(user => {
-                  res.json({ status:"success",Data: user.email + ' registered!',message:user.email + ' registered!' })
-                })
-                .catch(err => {
+      .then(async user => {
+        console.log(user,"user");
+        if (user.length==0) {
+          try{
+              const hashedPassword = await bcrypt.hash(req.body.pwd, 10);
+              userData.password=hashedPassword;
+              const userobj = new UserDB(userData)
+              await userobj.save()
+              res.json({ status:"success",Data: userData.email + ' registered!',message:userData.email + ' registered!' })
+                
+          }catch(err){
                   res.json({ status:"fail",Data: err,message:err })
-                  // res.send('error: ' + err)
-                })
-            })
-          }else {
+                  }
+            
+          }
+          else {
             res.json({ status:"fail",Data: 'User already exists',message:'User already exists' })
           }
         })
@@ -48,39 +53,43 @@ users.post('/register', (req, res) => {
 
 
 
-    users.post('/login', (req, res) => {
+    users.post('/login', async (req, res) => {
       
-        UserDB.findOne({
-          email: req.body.email
-        })
-          .then(user => {
-            if (user) {
-              if (bcrypt.compareSync(req.body.password, user.password)) {
-                // Passwords match
-                const payload = {
-                  _id: user._id,
-                  first_name: user.first_name,
-                  last_name: user.last_name,
-                  email: user.email
-                }
-                let token = jwt.sign(payload, process.env.secretkey || "secretkey", {
-                  expiresIn: '1h'
-                })
-                return res.json({token:token,message:'Login Successful',status:'success'})
-              }
-              else {
+      console.log("request sign in");
+      const userchk= await UserDB.find({ email: req.body.email });
+      console.log(userchk);
+      
+      if (userchk.length == 0) {
+       
+        res.status(400).send("Cannot find user");
+      } 
+      else {
+        try {
+          if (await bcrypt.compare(req.body.password,userchk[0].password )) {
+            const payload = {
+              _id: userchk[0]._id,
+              first_name: userchk[0].first_name,
+              last_name: userchk[0].last_name,
+              email: userchk[0].email
+            }
+            let token = jwt.sign(payload, process.env.secretkey, {
+              expiresIn: '212h'
+            })
+            console.log("login success");
+            return res.json({token:token,message:'Login Successful',status:'success'})
+          }
+            else {
                 // Passwords don't match
                 return res.json({ status:"fail",error: 'Password doesnt match',message:'Password doesnt match' })
               }
             }
-            else {
-              return res.json({ status:"fail",error: 'User does not exist',message:'User does not exist' })
-            }
-          })
-          .catch(err => {
+            
+        
+          catch(err){
             
             res.json({ status:"fail",error: err,message:err })
-          })
+          }
+        }
       })
 
     
