@@ -35,7 +35,7 @@ const Login = ({ history }) => {
 
     login(user)
       .then((res) => {
-        if (res.token && res.status === 'success') {
+        if (res.token && res.status === 200) {
           console.log(res);
           history.push('/home');
         } else if (res.status === 'fail') {

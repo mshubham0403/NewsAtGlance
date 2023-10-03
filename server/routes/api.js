@@ -40,10 +40,10 @@ route.post('/getnewsbysources',async (req,res,next)=>{
         
 
         
-        return res.json({ status:'success',articles:li,message:"" })
+        return res.json({ status:'success',articles:li,message:"src update" })
     }
     catch(err){
-        return res.json({ status:'fail',error:err,message:"" })
+        return res.json({ status:'fail',error:err,message:"error in src update" })
     }
 })
 
@@ -70,12 +70,9 @@ route.post('/suscribe',checkAuth,async (req, res) => {
       if(user){
           try{
             const listofsources=[]
-                  if(req.body.Android=="Android"){
-                    stringlist=req.body.selected_list.split(',')
-                  }
-                  else{
-                    stringlist=req.body.selected_list
-                  }
+                  
+                  stringlist=req.body.selected_list
+                  
                   
                   
                   user.suscribed=stringlist

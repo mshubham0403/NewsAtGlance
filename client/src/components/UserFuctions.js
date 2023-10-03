@@ -2,24 +2,22 @@
 import axios from 'axios'
 
 // const base_url=process.env.base_url || 'http://localhost:5005' || ""
-const base_url= process.env.NODE_ENV ==="production" ? process.env.base_url :"http://localhost:5005"
+const base_url="https://booktrove.onrender.com"
 
 export const logUserOut = token =>{
-  setTimeout(()=> localStorage.removeItem('usertoken'), 3600000*212)//212H
+  setTimeout(()=> localStorage.removeItem('usertoken'), 3600000)//1H
 }
 
-export const register = (newUser) => {
-  console.log('reg called')
-
+export const register = newUser => {
     return axios
-      .post(base_url+'/users/register', {
-        fn: newUser.fn,
-        ln: newUser.ln,
+      .post(base_url+'/register', {
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
         email: newUser.email,
-        pwd: newUser.pwd
+        password: newUser.password
       })
       .then(response => {
-        console.log(response.data)
+        console.log(response)
         return response.data
       })
       .catch(err=>{
@@ -30,13 +28,14 @@ export const register = (newUser) => {
 export const login = user => {
   console.log('login called')
     return axios
-      .post(base_url+'/users/login', {
+      .post(base_url+'/login', {
         email: user.email,
         password: user.password
       })
       .then(response => {
         localStorage.setItem('usertoken', response.data.token)
         logUserOut()
+        console.log(response.data);
         return response.data
       })
       .catch(err => {
@@ -45,3 +44,103 @@ export const login = user => {
       })
   }
 
+export const getnewsbysources = data => {
+  return axios
+    .post(base_url+'/api/getnewsbysources', {
+      main_urls: data.main_urls,
+      
+    })
+    .then(response => {
+      
+      return response.data
+    })
+    .catch(err => {
+      console.log(err)
+      return {'status':'fail'}
+    })
+}
+
+
+export const addToBookmark = data => {
+  return axios
+    .post(base_url+'/api/addToBookmark', data,
+    {
+      headers:{
+        'authorization':'Bearer '+localStorage.usertoken,
+      }
+    })
+    .then(response => {
+      return response.data
+    })
+    .catch(err => {
+      console.log(err)
+      return {'status':'fail'}
+    })
+}
+
+export const getBookMarkedArticle = ()=> {
+  return axios
+    .post(base_url+'/api/getBookMarkedArticle', {},
+    {
+      headers:{
+        'authorization':'Bearer '+localStorage.usertoken,
+      }
+    })
+    .then(response => {
+      return response.data
+    })
+    .catch(err => {
+      console.log(err)
+      return {'status':'fail'}
+    })
+}
+
+export const suscribe=async(data)=>{
+  try{
+    const result=await axios.post(base_url+'/api/suscribe',data,
+    {
+      headers:{
+        'authorization':'Bearer '+localStorage.usertoken,
+      }
+    }
+    )
+    return result.data
+  }
+  catch(err){
+    return {'status':'fail'}
+  }
+}
+
+export const currentUser=async()=>{
+  try{
+    const result=await axios.post(base_url+'/api/currentUser',{},
+    {
+      headers:{
+        'authorization':'Bearer '+localStorage.usertoken,
+        
+      }
+    }
+    )
+    return result.data
+  }
+  catch(err){
+    return {'status':'fail'}
+  }
+}
+
+export const allsourcesFun=async()=>{
+  try{
+    const result=await axios.post(base_url+'/api/allsources',{},
+    {
+      headers:{
+        'authorization':'Bearer '+localStorage.usertoken,
+        
+      }
+    }
+    )
+    return result.data
+  }
+  catch(err){
+    return {'status':'fail'}
+  }
+}
